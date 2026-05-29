@@ -29,7 +29,7 @@ public sealed class MarketAnalysisTools
     [Description("Combines position, watchlist, thesis, risk, and upcoming earnings data " +
         "into a concise bull/bear summary for a single symbol.")]
     public static async Task<TickerThesisSummary> SummarizeTickerThesis(
-        MarketDataStore store,
+        IMarketDataStore store,
         [Description("The ticker symbol to summarize, e.g. NVDA.")] string symbol,
         CancellationToken ct)
     {
@@ -69,7 +69,7 @@ public sealed class MarketAnalysisTools
     [Description("Lists symbols with earnings within the given window, annotated with " +
         "position/watchlist status, related risk notes, and a simple local risk level.")]
     public static async Task<IReadOnlyList<EarningsRisk>> FindUpcomingEarningsRisks(
-        MarketDataStore store,
+        IMarketDataStore store,
         CancellationToken ct,
         [Description("How many days ahead to include. Defaults to 30.")] int daysAhead = 30)
     {
@@ -113,7 +113,7 @@ public sealed class MarketAnalysisTools
     [Description("Generates a disciplined, neutral trade-journal entry from local data. " +
         "Does not make recommendations; only restates recorded context for the action you took.")]
     public static async Task<TradeJournalEntry> GenerateTradeJournalEntry(
-        MarketDataStore store,
+        IMarketDataStore store,
         [Description("The ticker symbol, e.g. AMD.")] string symbol,
         [Description("The action taken: buy, sell, hold, trim, add, or watch.")] string action,
         CancellationToken ct,
@@ -153,7 +153,7 @@ public sealed class MarketAnalysisTools
         "overview, watchlist highlights, upcoming earnings, highest-risk symbols, symbols to " +
         "review, and reflection questions. Not financial advice.")]
     public static async Task<MarketBriefing> GenerateMarketBriefing(
-        MarketDataStore store,
+        IMarketDataStore store,
         CancellationToken ct,
         [Description("What to focus on: portfolio, watchlist, earnings, risks, or all. Defaults to all.")]
         string focus = "all",

@@ -262,5 +262,5 @@ Just edit the JSON files in [`data/`](data/). Files are read on each tool call, 
 This is a learning project, but the structure is meant to scale into a real personal research tool:
 
 - Add write tools (create/update notes and positions).
-- Swap the JSON `MarketDataStore` for a database or a real market-data provider behind the same interface.
+- Swap the JSON-backed `JsonMarketDataStore` for a database or a real market-data provider by adding another `IMarketDataStore` implementation and selecting it with the `MARKETDESK_DATA_SOURCE` setting (defaults to `json`).
 - Add MCP resources/prompts for richer Copilot context.

@@ -4,11 +4,11 @@ using MarketDesk.Mcp.Models;
 namespace MarketDesk.Mcp.Services;
 
 /// <summary>
-/// Reads the local JSON files that back the market research data.
-/// Files are read on each call so edits to the JSON are picked up without
-/// restarting the server.
+/// <see cref="IMarketDataStore"/> implementation that reads the local JSON
+/// files that back the market research data. Files are read on each call so
+/// edits to the JSON are picked up without restarting the server.
 /// </summary>
-public sealed class MarketDataStore
+public sealed class JsonMarketDataStore : IMarketDataStore
 {
     private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web)
     {

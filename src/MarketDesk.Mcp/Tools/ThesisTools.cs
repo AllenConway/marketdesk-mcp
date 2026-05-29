@@ -13,13 +13,13 @@ public sealed class ThesisTools
 {
     [McpServerTool(Name = "list_thesis_notes")]
     [Description("Lists all investment thesis notes.")]
-    public static Task<IReadOnlyList<ThesisNote>> ListThesisNotes(MarketDataStore store, CancellationToken ct)
+    public static Task<IReadOnlyList<ThesisNote>> ListThesisNotes(IMarketDataStore store, CancellationToken ct)
         => store.GetThesisNotesAsync(ct);
 
     [McpServerTool(Name = "get_thesis_notes_for_symbol")]
     [Description("Gets thesis notes for a single ticker symbol (case-insensitive).")]
     public static Task<IReadOnlyList<ThesisNote>> GetThesisNotesForSymbol(
-        MarketDataStore store,
+        IMarketDataStore store,
         [Description("The ticker symbol, e.g. NVDA.")] string symbol,
         CancellationToken ct)
         => store.GetThesisNotesForSymbolAsync(symbol, ct);
