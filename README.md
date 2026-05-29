@@ -264,3 +264,29 @@ This is a learning project, but the structure is meant to scale into a real pers
 - Add write tools (create/update notes and positions).
 - Swap the JSON-backed `JsonMarketDataStore` for a database or a real market-data provider by adding another `IMarketDataStore` implementation and selecting it with the `MARKETDESK_DATA_SOURCE` setting (defaults to `json`).
 - Add MCP resources/prompts for richer Copilot context.
+
+## Migrating the data store (e.g. to Azure Cosmos DB)
+
+The codebase is already shaped for swapping the backing data store without touching any tool code. The tools depend only on the [`IMarketDataStore`](src/MarketDesk.Mcp/Services/IMarketDataStore.cs) interface, and the concrete implementation is chosen at startup.
+
+### What's already in place
+
+- **`IMarketDataStore`** — the abstraction every MCP tool depends on. All methods are async (`Task<T>`) and take a `CancellationToken`, which maps directly onto the Cosmos SDK (its data operations are async-only and accept a cancellation token).
+- **`JsonMarketDataStore`** — the only implementation today; reads the local JSON files via `DataPath`.
+- **A selector in [`Program.cs`](src/MarketDesk.Mcp/Program.cs)** — picks the implementation from the `MARKETDESK_DATA_SOURCE` setting (defaults to `json`), with a commented-out `case "cosmos":` showing exactly where a Cosmos store would register.
+
+Because of this, `DataPath` and `MARKETDESK_DATA_DIR` are only used by the JSON store; a Cosmos store would ignore them and read its own connection settings instead.
+
+### Steps to add a Cosmos DB implementation
+
+1. Add the `Microsoft.Azure.Cosmos` NuGet package (latest version compatible with .NET 10).
+2. Create `CosmosMarketDataStore : IMarketDataStore`. Suggested design:
+   - Reuse a single `CosmosClient` (register it as a singleton — creating clients repeatedly is an anti-pattern).
+   - Start with a single container using a `type` discriminator (`position`, `watchlist`, `earnings`, `thesis`, `risk`) and `/symbol` as the partition key (high cardinality, matches the per-symbol lookups).
+   - Use point reads (`ReadItemAsync`) for single-item lookups where possible (cheapest, ~1 RU) and `GetItemQueryIterator` for list queries; pass the `CancellationToken` through to every call.
+3. Uncomment and complete the `case "cosmos":` block in `Program.cs` to register `CosmosMarketDataStore`.
+4. Provide connection settings via environment/config — **never commit secrets**. Prefer `DefaultAzureCredential` (Entra ID, no key in the repo), or the local [Cosmos DB Emulator](https://learn.microsoft.com/azure/cosmos-db/emulator) whose well-known key is safe for local use. Suggested keys: `MARKETDESK_COSMOS_ENDPOINT`, `MARKETDESK_COSMOS_DATABASE`.
+5. Seed the JSON data into Cosmos once (a small one-time seeder, or do it manually).
+6. Select it at launch by setting `MARKETDESK_DATA_SOURCE=cosmos` (plus the Cosmos settings) in the env block of `run-mcp-server.bat` or `.vscode/mcp.json` — the launch commands themselves don't change.
+
+The JSON store stays as the default and is ideal for local development and tests, so both modes can coexist via different launch configs.
