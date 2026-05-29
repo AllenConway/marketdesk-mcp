@@ -18,40 +18,45 @@ public sealed class MarketDataStore
 
     private readonly string _dataDirectory = DataPath.Resolve();
 
-    public IReadOnlyList<Watchlist> GetWatchlists() => Load<Watchlist>("watchlists.json");
+    public Task<IReadOnlyList<Watchlist>> GetWatchlistsAsync(CancellationToken ct = default)
+        => LoadAsync<Watchlist>("watchlists.json", ct);
 
-    public IReadOnlyList<Position> GetPositions() => Load<Position>("positions.json");
+    public Task<IReadOnlyList<Position>> GetPositionsAsync(CancellationToken ct = default)
+        => LoadAsync<Position>("positions.json", ct);
 
-    public IReadOnlyList<EarningsEvent> GetEarnings() => Load<EarningsEvent>("earnings.json");
+    public Task<IReadOnlyList<EarningsEvent>> GetEarningsAsync(CancellationToken ct = default)
+        => LoadAsync<EarningsEvent>("earnings.json", ct);
 
-    public IReadOnlyList<ThesisNote> GetThesisNotes() => Load<ThesisNote>("thesis-notes.json");
+    public Task<IReadOnlyList<ThesisNote>> GetThesisNotesAsync(CancellationToken ct = default)
+        => LoadAsync<ThesisNote>("thesis-notes.json", ct);
 
-    public IReadOnlyList<RiskNote> GetRiskNotes() => Load<RiskNote>("risk-notes.json");
+    public Task<IReadOnlyList<RiskNote>> GetRiskNotesAsync(CancellationToken ct = default)
+        => LoadAsync<RiskNote>("risk-notes.json", ct);
 
     // --- Per-symbol convenience helpers (case-insensitive) ---
 
-    public Position? GetPosition(string symbol)
-        => GetPositions().FirstOrDefault(p => Matches(p.Symbol, symbol));
+    public async Task<Position?> GetPositionAsync(string symbol, CancellationToken ct = default)
+        => (await GetPositionsAsync(ct)).FirstOrDefault(p => Matches(p.Symbol, symbol));
 
     /// <summary>Names of the watchlists that contain the given symbol.</summary>
-    public IReadOnlyList<string> GetWatchlistsContaining(string symbol)
-        => [.. GetWatchlists()
+    public async Task<IReadOnlyList<string>> GetWatchlistsContainingAsync(string symbol, CancellationToken ct = default)
+        => [.. (await GetWatchlistsAsync(ct))
             .Where(w => w.Items.Any(i => Matches(i.Symbol, symbol)))
             .Select(w => w.Name)];
 
-    public IReadOnlyList<ThesisNote> GetThesisNotesForSymbol(string symbol)
-        => [.. GetThesisNotes().Where(t => Matches(t.Symbol, symbol))];
+    public async Task<IReadOnlyList<ThesisNote>> GetThesisNotesForSymbolAsync(string symbol, CancellationToken ct = default)
+        => [.. (await GetThesisNotesAsync(ct)).Where(t => Matches(t.Symbol, symbol))];
 
-    public IReadOnlyList<RiskNote> GetRiskNotesForSymbol(string symbol)
-        => [.. GetRiskNotes().Where(r => Matches(r.Symbol, symbol))];
+    public async Task<IReadOnlyList<RiskNote>> GetRiskNotesForSymbolAsync(string symbol, CancellationToken ct = default)
+        => [.. (await GetRiskNotesAsync(ct)).Where(r => Matches(r.Symbol, symbol))];
 
-    public IReadOnlyList<EarningsEvent> GetEarningsForSymbol(string symbol)
-        => [.. GetEarnings().Where(e => Matches(e.Symbol, symbol))];
+    public async Task<IReadOnlyList<EarningsEvent>> GetEarningsForSymbolAsync(string symbol, CancellationToken ct = default)
+        => [.. (await GetEarningsAsync(ct)).Where(e => Matches(e.Symbol, symbol))];
 
     private static bool Matches(string a, string b)
         => string.Equals(a, b, StringComparison.OrdinalIgnoreCase);
 
-    private List<T> Load<T>(string fileName)
+    private async Task<IReadOnlyList<T>> LoadAsync<T>(string fileName, CancellationToken ct)
     {
         var path = Path.Combine(_dataDirectory, fileName);
         if (!File.Exists(path))
@@ -59,7 +64,7 @@ public sealed class MarketDataStore
             return [];
         }
 
-        using var stream = File.OpenRead(path);
-        return JsonSerializer.Deserialize<List<T>>(stream, SerializerOptions) ?? [];
+        await using var stream = File.OpenRead(path);
+        return await JsonSerializer.DeserializeAsync<List<T>>(stream, SerializerOptions, ct) ?? [];
     }
 }

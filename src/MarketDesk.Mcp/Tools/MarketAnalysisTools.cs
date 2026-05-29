@@ -28,17 +28,18 @@ public sealed class MarketAnalysisTools
     [McpServerTool(Name = "summarize_ticker_thesis")]
     [Description("Combines position, watchlist, thesis, risk, and upcoming earnings data " +
         "into a concise bull/bear summary for a single symbol.")]
-    public static TickerThesisSummary SummarizeTickerThesis(
+    public static async Task<TickerThesisSummary> SummarizeTickerThesis(
         MarketDataStore store,
-        [Description("The ticker symbol to summarize, e.g. NVDA.")] string symbol)
+        [Description("The ticker symbol to summarize, e.g. NVDA.")] string symbol,
+        CancellationToken ct)
     {
         symbol = symbol.Trim();
 
-        var position = store.GetPosition(symbol);
-        var watchlists = store.GetWatchlistsContaining(symbol);
-        var theses = store.GetThesisNotesForSymbol(symbol);
-        var risks = store.GetRiskNotesForSymbol(symbol);
-        var upcoming = UpcomingEarnings(store.GetEarningsForSymbol(symbol));
+        var position = await store.GetPositionAsync(symbol, ct);
+        var watchlists = await store.GetWatchlistsContainingAsync(symbol, ct);
+        var theses = await store.GetThesisNotesForSymbolAsync(symbol, ct);
+        var risks = await store.GetRiskNotesForSymbolAsync(symbol, ct);
+        var upcoming = UpcomingEarnings(await store.GetEarningsForSymbolAsync(symbol, ct));
 
         var held = position is not null;
         var watched = watchlists.Count > 0;
@@ -67,8 +68,9 @@ public sealed class MarketAnalysisTools
     [McpServerTool(Name = "find_upcoming_earnings_risks")]
     [Description("Lists symbols with earnings within the given window, annotated with " +
         "position/watchlist status, related risk notes, and a simple local risk level.")]
-    public static IReadOnlyList<EarningsRisk> FindUpcomingEarningsRisks(
+    public static async Task<IReadOnlyList<EarningsRisk>> FindUpcomingEarningsRisks(
         MarketDataStore store,
+        CancellationToken ct,
         [Description("How many days ahead to include. Defaults to 30.")] int daysAhead = 30)
     {
         var today = DateTime.UtcNow.Date;
@@ -76,7 +78,7 @@ public sealed class MarketAnalysisTools
 
         var results = new List<EarningsRisk>();
 
-        foreach (var earnings in store.GetEarnings())
+        foreach (var earnings in await store.GetEarningsAsync(ct))
         {
             if (!TryParseDate(earnings.ReportDate, out var date)
                 || date < today || date > cutoff)
@@ -84,9 +86,9 @@ public sealed class MarketAnalysisTools
                 continue;
             }
 
-            var position = store.GetPosition(earnings.Symbol);
-            var watchlists = store.GetWatchlistsContaining(earnings.Symbol);
-            var risks = store.GetRiskNotesForSymbol(earnings.Symbol);
+            var position = await store.GetPositionAsync(earnings.Symbol, ct);
+            var watchlists = await store.GetWatchlistsContainingAsync(earnings.Symbol, ct);
+            var risks = await store.GetRiskNotesForSymbolAsync(earnings.Symbol, ct);
             var daysUntil = (date - today).Days;
 
             results.Add(new EarningsRisk
@@ -110,18 +112,19 @@ public sealed class MarketAnalysisTools
     [McpServerTool(Name = "generate_trade_journal_entry")]
     [Description("Generates a disciplined, neutral trade-journal entry from local data. " +
         "Does not make recommendations; only restates recorded context for the action you took.")]
-    public static TradeJournalEntry GenerateTradeJournalEntry(
+    public static async Task<TradeJournalEntry> GenerateTradeJournalEntry(
         MarketDataStore store,
         [Description("The ticker symbol, e.g. AMD.")] string symbol,
         [Description("The action taken: buy, sell, hold, trim, add, or watch.")] string action,
+        CancellationToken ct,
         [Description("Optional free-text reason the user wants to record.")] string? userReason = null)
     {
         symbol = symbol.Trim();
 
-        var position = store.GetPosition(symbol);
-        var theses = store.GetThesisNotesForSymbol(symbol);
-        var risks = store.GetRiskNotesForSymbol(symbol);
-        var upcoming = UpcomingEarnings(store.GetEarningsForSymbol(symbol));
+        var position = await store.GetPositionAsync(symbol, ct);
+        var theses = await store.GetThesisNotesForSymbolAsync(symbol, ct);
+        var risks = await store.GetRiskNotesForSymbolAsync(symbol, ct);
+        var upcoming = UpcomingEarnings(await store.GetEarningsForSymbolAsync(symbol, ct));
 
         return new TradeJournalEntry
         {
@@ -149,8 +152,9 @@ public sealed class MarketAnalysisTools
     [Description("Generates a concise personal research briefing from local data: portfolio " +
         "overview, watchlist highlights, upcoming earnings, highest-risk symbols, symbols to " +
         "review, and reflection questions. Not financial advice.")]
-    public static MarketBriefing GenerateMarketBriefing(
+    public static async Task<MarketBriefing> GenerateMarketBriefing(
         MarketDataStore store,
+        CancellationToken ct,
         [Description("What to focus on: portfolio, watchlist, earnings, risks, or all. Defaults to all.")]
         string focus = "all",
         [Description("How many days ahead to include for earnings. Defaults to 30.")] int daysAhead = 30)
@@ -158,9 +162,9 @@ public sealed class MarketAnalysisTools
         focus = string.IsNullOrWhiteSpace(focus) ? "all" : focus.Trim().ToLowerInvariant();
         var all = focus == "all";
 
-        var positions = store.GetPositions();
-        var watchlists = store.GetWatchlists();
-        var risks = store.GetRiskNotes();
+        var positions = await store.GetPositionsAsync(ct);
+        var watchlists = await store.GetWatchlistsAsync(ct);
+        var risks = await store.GetRiskNotesAsync(ct);
 
         var briefing = new MarketBriefing
         {
@@ -206,7 +210,7 @@ public sealed class MarketAnalysisTools
         // Upcoming earnings within the window
         if (all || focus == "earnings")
         {
-            briefing.UpcomingEarnings = [.. FindUpcomingEarningsRisks(store, daysAhead)
+            briefing.UpcomingEarnings = [.. (await FindUpcomingEarningsRisks(store, ct, daysAhead))
                 .Select(e =>
                 {
                     var status = e.IsHeld ? "held" : e.IsWatched ? "watched" : "not tracked";
@@ -219,7 +223,7 @@ public sealed class MarketAnalysisTools
         // Highest-risk symbols: combine risk-note severity with imminent earnings
         if (all || focus == "risks")
         {
-            var earningsRisks = FindUpcomingEarningsRisks(store, daysAhead)
+            var earningsRisks = (await FindUpcomingEarningsRisks(store, ct, daysAhead))
                 .ToDictionary(e => e.Symbol, e => e.RiskLevel, StringComparer.OrdinalIgnoreCase);
 
             briefing.HighestRiskSymbols = [.. risks
@@ -253,7 +257,7 @@ public sealed class MarketAnalysisTools
         {
             reviewSymbols.Add($"{r.Symbol.ToUpperInvariant()} — high-severity risk note");
         }
-        foreach (var e in FindUpcomingEarningsRisks(store, daysAhead).Where(e => e.DaysUntil <= 7))
+        foreach (var e in (await FindUpcomingEarningsRisks(store, ct, daysAhead)).Where(e => e.DaysUntil <= 7))
         {
             reviewSymbols.Add($"{e.Symbol} — earnings within 7 days");
         }

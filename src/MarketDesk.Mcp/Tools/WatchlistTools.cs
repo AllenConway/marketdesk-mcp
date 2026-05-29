@@ -13,14 +13,15 @@ public sealed class WatchlistTools
 {
     [McpServerTool(Name = "list_watchlists")]
     [Description("Lists all watchlists with their symbols and notes.")]
-    public static IReadOnlyList<Watchlist> ListWatchlists(MarketDataStore store)
-        => store.GetWatchlists();
+    public static Task<IReadOnlyList<Watchlist>> ListWatchlists(MarketDataStore store, CancellationToken ct)
+        => store.GetWatchlistsAsync(ct);
 
     [McpServerTool(Name = "get_watchlist")]
     [Description("Gets a single watchlist by its name (case-insensitive).")]
-    public static Watchlist? GetWatchlist(
+    public static async Task<Watchlist?> GetWatchlist(
         MarketDataStore store,
-        [Description("The watchlist name to look up.")] string name)
-        => store.GetWatchlists()
+        [Description("The watchlist name to look up.")] string name,
+        CancellationToken ct)
+        => (await store.GetWatchlistsAsync(ct))
             .FirstOrDefault(w => string.Equals(w.Name, name, StringComparison.OrdinalIgnoreCase));
 }

@@ -13,22 +13,23 @@ public sealed class PositionTools
 {
     [McpServerTool(Name = "list_positions")]
     [Description("Lists all mock positions, including cost basis, market value, and unrealized P/L.")]
-    public static IReadOnlyList<Position> ListPositions(MarketDataStore store)
-        => store.GetPositions();
+    public static Task<IReadOnlyList<Position>> ListPositions(MarketDataStore store, CancellationToken ct)
+        => store.GetPositionsAsync(ct);
 
     [McpServerTool(Name = "get_position")]
     [Description("Gets a single mock position by ticker symbol (case-insensitive).")]
-    public static Position? GetPosition(
+    public static async Task<Position?> GetPosition(
         MarketDataStore store,
-        [Description("The ticker symbol, e.g. MSFT.")] string symbol)
-        => store.GetPositions()
+        [Description("The ticker symbol, e.g. MSFT.")] string symbol,
+        CancellationToken ct)
+        => (await store.GetPositionsAsync(ct))
             .FirstOrDefault(p => string.Equals(p.Symbol, symbol, StringComparison.OrdinalIgnoreCase));
 
     [McpServerTool(Name = "portfolio_summary")]
     [Description("Summarizes the mock portfolio: total cost basis, market value, and unrealized P/L.")]
-    public static PortfolioSummary GetPortfolioSummary(MarketDataStore store)
+    public static async Task<PortfolioSummary> GetPortfolioSummary(MarketDataStore store, CancellationToken ct)
     {
-        var positions = store.GetPositions();
+        var positions = await store.GetPositionsAsync(ct);
         return new PortfolioSummary
         {
             PositionCount = positions.Count,
