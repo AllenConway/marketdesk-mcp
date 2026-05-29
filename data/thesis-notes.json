@@ -1,0 +1,37 @@
+[
+  {
+    "symbol": "MSFT",
+    "title": "AI-driven cloud reacceleration",
+    "thesis": "Azure growth reaccelerates as AI workloads scale and Copilot monetization broadens across the M365 base. This is my sleep-at-night core position.",
+    "conviction": "High",
+    "updatedOn": "2026-04-10"
+  },
+  {
+    "symbol": "NVDA",
+    "title": "Still the AI backbone",
+    "thesis": "Accelerated computing stays supply-constrained and the CUDA software moat keeps pricing power high. Long-term conviction, but I know I'm paying up for it.",
+    "conviction": "High",
+    "updatedOn": "2026-05-12"
+  },
+  {
+    "symbol": "SPY",
+    "title": "Just own the market",
+    "thesis": "Index anchor so I stop fiddling. Dollar-cost in, ignore the noise, let it compound.",
+    "conviction": "High",
+    "updatedOn": "2026-02-01"
+  },
+  {
+    "symbol": "AMD",
+    "title": "The credible #2 in AI silicon",
+    "thesis": "If AMD takes even single-digit GPU share from NVDA the upside is big. Pure swing trade, not a forever hold.",
+    "conviction": "Medium",
+    "updatedOn": "2026-05-20"
+  },
+  {
+    "symbol": "RBLX",
+    "title": "Aging-up + bookings growth",
+    "thesis": "Older user cohorts and ads could turn bookings into real free cash flow. High risk, small size, treating it like a lottery ticket.",
+    "conviction": "Low",
+    "updatedOn": "2026-05-25"
+  }
+]

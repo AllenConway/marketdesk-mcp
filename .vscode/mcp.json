@@ -1,0 +1,16 @@
+{
+  "servers": {
+    "marketdesk": {
+      "type": "stdio",
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "src/MarketDesk.Mcp/MarketDesk.Mcp.csproj"
+      ],
+      "env": {
+        "MARKETDESK_DATA_DIR": "${workspaceFolder}/data"
+      }
+    }
+  }
+}

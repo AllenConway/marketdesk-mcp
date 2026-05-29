@@ -1,0 +1,28 @@
+[
+  {
+    "name": "Core Conviction",
+    "description": "Long-term holdings I plan to keep through the cycle.",
+    "items": [
+      { "symbol": "MSFT", "note": "Core compounder. Only adding on big pullbacks." },
+      { "symbol": "NVDA", "note": "AI leader. High conviction but watching valuation closely." },
+      { "symbol": "SPY", "note": "Broad-market anchor. Boring on purpose." }
+    ]
+  },
+  {
+    "name": "Speculative Swings",
+    "description": "Higher-risk growth names I trade around a small core.",
+    "items": [
+      { "symbol": "AMD", "note": "Data-center share-gain story. Volatile, keeping size small." },
+      { "symbol": "RBLX", "note": "Bookings growth + aging-up users. Lottery-ticket vibes." },
+      { "symbol": "TSLA", "note": "Trading the range. Margins are the whole thesis." }
+    ]
+  },
+  {
+    "name": "Watching (Not Owned)",
+    "description": "On the radar, waiting for a setup. Nothing here is held yet.",
+    "items": [
+      { "symbol": "QQQ", "note": "Want more tech beta but waiting for a cleaner pullback." },
+      { "symbol": "F", "note": "Cheap + dividend, but want proof the EV losses are shrinking first." }
+    ]
+  }
+]

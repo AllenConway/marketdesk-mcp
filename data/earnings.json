@@ -1,0 +1,58 @@
+[
+  {
+    "symbol": "NVDA",
+    "reportDate": "2026-06-04",
+    "fiscalPeriod": "FY27 Q1",
+    "epsEstimate": 0.98,
+    "epsActual": null,
+    "confirmed": true
+  },
+  {
+    "symbol": "RBLX",
+    "reportDate": "2026-06-11",
+    "fiscalPeriod": "FY26 Q2",
+    "epsEstimate": -0.32,
+    "epsActual": null,
+    "confirmed": true
+  },
+  {
+    "symbol": "AMD",
+    "reportDate": "2026-06-23",
+    "fiscalPeriod": "FY26 Q2",
+    "epsEstimate": 0.84,
+    "epsActual": null,
+    "confirmed": false
+  },
+  {
+    "symbol": "TSLA",
+    "reportDate": "2026-07-15",
+    "fiscalPeriod": "FY26 Q2",
+    "epsEstimate": 0.42,
+    "epsActual": null,
+    "confirmed": false
+  },
+  {
+    "symbol": "MSFT",
+    "reportDate": "2026-07-28",
+    "fiscalPeriod": "FY26 Q4",
+    "epsEstimate": 3.45,
+    "epsActual": null,
+    "confirmed": true
+  },
+  {
+    "symbol": "F",
+    "reportDate": "2026-04-29",
+    "fiscalPeriod": "FY26 Q1",
+    "epsEstimate": 0.45,
+    "epsActual": 0.39,
+    "confirmed": true
+  },
+  {
+    "symbol": "NVDA",
+    "reportDate": "2026-02-25",
+    "fiscalPeriod": "FY26 Q4",
+    "epsEstimate": 0.85,
+    "epsActual": 0.91,
+    "confirmed": true
+  }
+]

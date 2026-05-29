@@ -1,0 +1,51 @@
+[
+  {
+    "symbol": "MSFT",
+    "quantity": 25,
+    "averageCost": 310.50,
+    "lastPrice": 430.00,
+    "openedOn": "2024-02-15"
+  },
+  {
+    "symbol": "NVDA",
+    "quantity": 40,
+    "averageCost": 95.20,
+    "lastPrice": 128.40,
+    "openedOn": "2024-06-03"
+  },
+  {
+    "symbol": "SPY",
+    "quantity": 30,
+    "averageCost": 498.00,
+    "lastPrice": 552.25,
+    "openedOn": "2024-01-10"
+  },
+  {
+    "symbol": "AMD",
+    "quantity": 35,
+    "averageCost": 168.40,
+    "lastPrice": 142.10,
+    "openedOn": "2025-09-22"
+  },
+  {
+    "symbol": "RBLX",
+    "quantity": 60,
+    "averageCost": 51.75,
+    "lastPrice": 43.20,
+    "openedOn": "2025-11-04"
+  },
+  {
+    "symbol": "TSLA",
+    "quantity": 18,
+    "averageCost": 245.00,
+    "lastPrice": 198.60,
+    "openedOn": "2025-07-18"
+  },
+  {
+    "symbol": "F",
+    "quantity": 200,
+    "averageCost": 11.20,
+    "lastPrice": 11.85,
+    "openedOn": "2025-03-12"
+  }
+]

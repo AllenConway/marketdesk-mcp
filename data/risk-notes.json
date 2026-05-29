@@ -1,0 +1,37 @@
+[
+  {
+    "symbol": "NVDA",
+    "risk": "Valuation + hyperscaler customer concentration. A few big buyers drive most of the revenue, so any capex pause hits hard.",
+    "severity": "High",
+    "mitigation": "Trim if position grows past 20% of the book. Watch hyperscaler capex commentary every quarter.",
+    "updatedOn": "2026-05-12"
+  },
+  {
+    "symbol": "TSLA",
+    "risk": "Automotive gross margins keep getting squeezed by price cuts, and the stock trades on narrative more than numbers.",
+    "severity": "High",
+    "mitigation": "Hard stop if it closes below my cost basis for two weeks. No averaging down.",
+    "updatedOn": "2026-05-22"
+  },
+  {
+    "symbol": "AMD",
+    "risk": "Already underwater. Execution risk vs NVDA and lumpy data-center orders make earnings a coin flip.",
+    "severity": "Medium",
+    "mitigation": "Keep size small. Reassess the whole thesis after the June report.",
+    "updatedOn": "2026-05-24"
+  },
+  {
+    "symbol": "RBLX",
+    "risk": "Still unprofitable and burns cash; bookings could stall if engagement growth slows.",
+    "severity": "High",
+    "mitigation": "This is lottery-ticket money only. Max 2% of portfolio, no exceptions.",
+    "updatedOn": "2026-05-25"
+  },
+  {
+    "symbol": "F",
+    "risk": "EV division losses and legacy-automaker margins. Dividend looks safe-ish but not guaranteed.",
+    "severity": "Medium",
+    "mitigation": "Only a starter-size watch position. Want two quarters of shrinking EV losses before adding.",
+    "updatedOn": "2026-05-18"
+  }
+]
