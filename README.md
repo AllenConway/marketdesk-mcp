@@ -46,6 +46,7 @@ nothing writes data, calls the network, or makes recommendations.
 ```
 marketdesk-mcp/
 ├─ MarketDesk.Mcp.slnx
+├─ run-mcp-server.bat          # Windows launcher for Claude Desktop / Claude Code
 ├─ .vscode/
 │  └─ mcp.json                 # VS Code MCP server registration
 ├─ data/                       # Local JSON data (edit freely)
@@ -103,6 +104,94 @@ This repo ships a ready-to-use [`.vscode/mcp.json`](.vscode/mcp.json):
    - "Show upcoming earnings in the next 60 days."
    - "What's my thesis on NVDA, and what risks am I tracking?"
    - "Use MarketDesk to generate a market briefing for my mock portfolio and watchlist for the next 30 days."
+
+> **Tip:** MCP tools only work in Copilot Chat's **Agent** mode (not Ask/Edit).
+
+### Workspace vs. user (global) scope
+
+The bundled [`.vscode/mcp.json`](.vscode/mcp.json) is **workspace-scoped** — it only
+applies when this folder is open, but it travels with the repo so anyone who clones it
+gets the server automatically.
+
+To make the server available in **every** VS Code window without copying `mcp.json` into
+each workspace, register it at **user scope** instead: open the Command Palette and run
+**MCP: Open User Configuration**, then add the entry below. Use **absolute paths** (there
+is no `${workspaceFolder}` at user scope):
+
+```json
+{
+  "servers": {
+    "marketdesk": {
+      "type": "stdio",
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "C:\\path\\to\\marketdesk-mcp\\src\\MarketDesk.Mcp\\MarketDesk.Mcp.csproj"
+      ],
+      "env": {
+        "MARKETDESK_DATA_DIR": "C:\\path\\to\\marketdesk-mcp\\data"
+      }
+    }
+  }
+}
+```
+
+VS Code merges workspace and user scopes, so you can keep both. Replace
+`C:\\path\\to\\marketdesk-mcp` with the absolute path to your clone.
+
+## Use it from Claude Desktop / Claude Code
+
+The exact same stdio server works in Claude. Claude has no "workspace" concept and
+launches MCP servers from its app process (where `dotnet` may not be on `PATH`), so the
+most reliable approach on Windows is the included [`run-mcp-server.bat`](run-mcp-server.bat)
+wrapper. It sets `MARKETDESK_DATA_DIR` and uses absolute paths derived from its own
+location, so it keeps working wherever the repo is cloned.
+
+The wrapper **builds the project first and sends that output to stderr, then runs the
+compiled DLL** — this matters because the MCP stdio transport requires `stdout` to carry
+*only* JSON-RPC. Using `dotnet run` leaks build/restore text to stdout, which Claude
+reports as `Unexpected token 'C', "C:\Program"... is not valid JSON`.
+
+### Claude Desktop
+
+1. Open **Settings → Developer → Local MCP servers** and click **Edit Config** (this opens
+   `claude_desktop_config.json`).
+2. Add a `Market Desk` entry under `mcpServers`, pointing at the batch file (the key is
+   the display name Claude shows for the server):
+
+   ```json
+   {
+     "mcpServers": {
+       "Market Desk": {
+         "command": "C:\\path\\to\\marketdesk-mcp\\run-mcp-server.bat",
+         "args": []
+       }
+     }
+   }
+   ```
+
+   Replace `C:\\path\\to\\marketdesk-mcp` with the absolute path to your clone (use
+   double backslashes in JSON). If you already have other servers, just add `Market Desk`
+   alongside them — don't replace the whole `mcpServers` object.
+3. Restart Claude Desktop. The `Market Desk` server should show as **running**, and you
+   can ask the same prompts listed above.
+
+> **Why the `.bat` and not `dotnet run` directly?** The wrapper builds to stderr and then
+> runs the compiled DLL, keeping `stdout` clean for the JSON-RPC protocol. Running
+> `dotnet run` directly leaks build output to stdout and produces the
+> `... is not valid JSON` error in Claude. The batch wrapper also guarantees `dotnet`
+> resolves and the data path is correct regardless of how Claude launches the process.
+
+### Claude Code (CLI)
+
+From the repo root:
+
+```pwsh
+claude mcp add "Market Desk" -- "./run-mcp-server.bat"
+```
+
+Then run `claude` and the Market Desk tools will be available in the session.
 
 ## Demo Script
 
